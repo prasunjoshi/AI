@@ -1,0 +1,12 @@
+project goal
+	gap analysis
+	technical description
+	architecture diagram
+	milestones
+
+
+which cloud
+
+dataset
+
+relevant background
