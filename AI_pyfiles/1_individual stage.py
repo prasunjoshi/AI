@@ -9,26 +9,18 @@ B=[0]*10
 Z=[0]*10
 Q=[0]*10
 val=[0]*10
-# P=[0]*10
-# mx=0
-# rp=0
-# for b in range(0,10):
-# 	P[b]=V[b]*(1-math.exp(-V[b]))
-# 	print(P[b])
-# 	if(P[b]>mx):
-# 		mx=P[b]
-# 		rp=V[b]
 
-# print("dfsfjhsdifidfbsibfisdbguidfgis ",rp)
 L=[2]*5
 for i in range(5,10):
 	L.append(1)
 
-# print("L" ,L) #define karne ka ghhai!!!!!!!!! DISCUS WITH ABHINANDAN
+# print("L" ,L) 
+#define !!!!!!!!! DISCUS WITH ABHINANDAN
 
 
-R=[2]*10 #define karne ka hai!!!!!!!!!
- # distribution function for valuation.. variable:x
+R=[2]*10 
+#define !!!!!!!!!
+# distribution function for valuation.. variable:x
 
 def distribFunc():
 		V.clear()
