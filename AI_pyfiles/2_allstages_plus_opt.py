@@ -4,6 +4,7 @@ import math
 import scipy.integrate as si
 import scipy.optimize as so
 import random
+import csv
 
 T=4
 N=10
@@ -22,7 +23,7 @@ L=[[l for b in range (N)]for t in range (T)]
 #     for t in range (4):
 #         L[t][b]=l
 #     l+=0.12
-print("\n L ",L[0])
+print("\n L ",L[0][0])
 
 # lower reserved value rt(0) range and values to be decided.
 
@@ -198,3 +199,13 @@ def esrev(storedRt0,alp):
 alphdet(B,LB,alp)
 esrev(storedRt0,alp)
 print("Estimated revenue ", max(H[0]))
+
+#with open(r'Plot.csv', 'ab', newline='') as csvfile:
+writer = csv.writer(open('Plot.csv', 'a'))
+#fieldnames = ['Limit','Max Revenue','Estimated Revenue']
+#writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+#row = []
+lt = str(L[0][0]).encode('utf-8')
+mxrev = str(sm).encode('utf-8')
+esrev = str(max(H[0])).encode('utf-8')
+writer.writerow([lt,mxrev,esrev])
