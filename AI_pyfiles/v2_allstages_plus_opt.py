@@ -5,6 +5,7 @@ import scipy.integrate as si
 import scipy.optimize as so
 import random
 import csv,os
+import pandas as pd
 
 T=4
 N=10
@@ -17,13 +18,27 @@ val=[[0 for b in range (N)]for t in range (T)]
 LB=[[0 for b in range (N)]for t in range (T)]
 
 # bank account limit : random number (range to be decided) matrix of size TxB
-l=random.uniform(0,1.2)
-L=[[l for b in range (N)]for t in range (T)]
-# for b in range (10):
-#     for t in range (4):
-#         L[t][b]=l
-#     l+=0.12
-print("\n L ",L[0][0])
+def setL():
+	if(os.path.exists("Plot.csv")==0):
+		writer=csv.writer(open('Plot.csv','w'))
+		writer.writerow(["Limit","Max Revenue","Optimal Revenue"])
+		l=-0.024
+	else:
+		filename="Plot.csv"
+		df=pd.read_csv(filename)
+		if (df.empty==0):
+			print(df)
+			# print(df.iloc[0]["Limit"])
+			l=df.iloc[-1]["Limit"]
+
+	global L
+	L=[[l+0.024 for b in range (N)]for t in range (T)]
+
+	# for b in range (10):
+	#     for t in range (4):
+	#         L[t][b]=l
+	#     l+=0.12
+	print("\nL ",L[0][0])
 
 # lower reserved value rt(0) range and values to be decided.
 
@@ -62,9 +77,9 @@ def integVal(lowl,upl):
 
 def resVal(sp,t,b):
 	if(sp!=0):
-		return findrtnz(sp,R)
+		return findrtnz(sp,storedRt0[t])
 	else:
-		return R
+		return storedRt0[t]
 
 # function to find the reserve price for non-zero spend.
 # lower limit of "the" integration with spent value as the result and rt(0) as upper limit
@@ -109,29 +124,23 @@ def depositPolicy(Z,B,L,t):
 
 storedRt0=[]
 
-for t in range (T):
-	print("\nStage ",t+1,"\n")
-	V=valuations()
-	R=random.uniform(min(V),max(V))
-	storedRt0.append(R)
-	print("R ",R)
-	allocationRule(V,B,t)
-	paymentRule(V,Z,B,t)
-	if(t!=T-1):
-		depositPolicy(Z,B,L,t)
+def doubleReserve():
+	global sm
+	sm=0
+	storedRt0.clear()
+	for t in range (T):
+		print("\nStage ",t+1,"\n")
+		V=valuations()
+		R=random.uniform(min(V),max(V))
+		storedRt0.append(R)
+		print("R ",R)
+		allocationRule(V,B,t)
+		paymentRule(V,Z,B,t)
+		if(t!=T-1):
+			depositPolicy(Z,B,L,t)
+		sm+=max(Q[t])
+	print ("MAX revenue",sm)
 
-sm=0
-for t in range(T):
-	sm+=max(Q[t])
-
-rb=[]
-# for b in range(N):
-# 	sm=0
-# 	for t in range (1,T):
-# 		sm+=Q[t][b]
-# 	rb.append(sm)
-print ("MAX revenue",sm)
-# print("Revenue from Mechanism 2 is ",rb)
 
 
 
@@ -164,22 +173,11 @@ def alphdet(B,LB,alp):
 			alp[1][b]=1
 		else:
 			alp[1][b]=0
-
 		for t in range (2,T-1):
 			alp[t+1][b]=1-alp[t][b]*math.exp(-1*resVal(LB[t][b],t,b))-(1-alp[t][b])*math.exp(-1*resVal(0,t,b))
 
-
 def rhoh(u):
 	return u*(1-math.exp(-u))
-
-
-# def maxim(t):
-# 	mx=0
-# 	for b in range (0,N):
-# 		if (R[b][t]>mx):
-# 			mx=R[b][t]
-# 	return mx
-
 
 def Kt(alp,t,b,storedRt0):
 	kt=alp[t][b]*(rhoh(resVal(LB[t][b],t,b))-rhoh(storedRt0[t])+integVal(resVal(LB[t][b],t,b),storedRt0[t]))
@@ -195,23 +193,22 @@ def esrev(storedRt0,alp):
 		for t in range (T-2,-1,-1):
 			H[t][b]=Kt(alp,t,b,storedRt0)+rhoh(rt0)+H[t+1][b]
 
+def optimal():
+	alphdet(B,LB,alp)
+	esrev(storedRt0,alp)
+	print("Estimated revenue ", max(H[0]))
 
-alphdet(B,LB,alp)
-esrev(storedRt0,alp)
-print("Estimated revenue ", max(H[0]))
+def writetocsv():
+	writer = csv.writer(open('Plot.csv', 'a'))
+	lt = float(str(L[0][0]).encode('utf-8'))
+	print("=============================",lt)
+	mxrev = float(str(sm).encode('utf-8'))
+	print("=============================",mxrev)
+	esrev = float(str(max(H[0])).encode('utf-8'))
+	print("=============================",esrev)
+	writer.writerow([lt,mxrev,esrev])
 
-
-if(os.path.exists("Plot.csv")==0):
-	writer=csv.writer(open('Plot.csv','w'))
-	writer.writerow(["Limit","Max Revenue","Optimal Revenue"])
-
-
-#with open(r'Plot.csv', 'ab', newline='') as csvfile:
-writer = csv.writer(open('Plot.csv', 'a'))
-#fieldnames = ['Limit','Max Revenue','Estimated Revenue']
-#writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-#row = []
-lt = str(L[0][0]).encode('utf-8')
-mxrev = str(sm).encode('utf-8')
-esrev = str(max(H[0])).encode('utf-8')
-writer.writerow([float(lt),float(mxrev),float(esrev)])
+def counts():
+	df=pd.read_csv("Plot.csv")
+	r=df.shape[0]
+	return r
