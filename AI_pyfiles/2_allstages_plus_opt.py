@@ -4,7 +4,7 @@ import math
 import scipy.integrate as si
 import scipy.optimize as so
 import random
-import csv
+import csv,os
 
 T=4
 N=10
@@ -200,6 +200,12 @@ alphdet(B,LB,alp)
 esrev(storedRt0,alp)
 print("Estimated revenue ", max(H[0]))
 
+
+if(os.path.exists("Plot.csv")==0):
+	writer=csv.writer(open('Plot.csv','w'))
+	writer.writerow(["Limit","Max Revenue","Optimal Revenue"])
+
+
 #with open(r'Plot.csv', 'ab', newline='') as csvfile:
 writer = csv.writer(open('Plot.csv', 'a'))
 #fieldnames = ['Limit','Max Revenue','Estimated Revenue']
@@ -208,4 +214,4 @@ writer = csv.writer(open('Plot.csv', 'a'))
 lt = str(L[0][0]).encode('utf-8')
 mxrev = str(sm).encode('utf-8')
 esrev = str(max(H[0])).encode('utf-8')
-writer.writerow([lt,mxrev,esrev])
+writer.writerow([float(lt),float(mxrev),float(esrev)])
